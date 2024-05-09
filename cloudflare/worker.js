@@ -368,7 +368,6 @@ const pass = async (request, cookie) => {
 
 
 const login = async (url, headers) => {
-  console.log(url)
   const newReq = new Request(BING_ORIGIN + '/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3a%2f%2fwww.bing.com%2fchat%3fq%3dBing%2bAI%26FORM%3dhpcodx%26wlsso%3d1%26wlexpsignin%3d1&src=EXPLICIT&sig=001DD71D5A386F753B1FC3055B306E8F', {
     method: 'GET',
     headers: headers,
@@ -530,7 +529,6 @@ export default {
     if (!cookie.includes('_U=')) {
       if (CUSTOM_OPTIONS._U.length !== 0) {
         const _Us = CUSTOM_OPTIONS._U.split(',');
-        console.log(_Us[getRandomInt(0, _Us.length)])
         cookies += '; _U=' + _Us[getRandomInt(0, _Us.length)];
       }
     }
@@ -547,6 +545,21 @@ export default {
     if (currentUrl.pathname === '/pass') {
       return pass(request, cookies);
     }
+
+    const cookieStr = cookies;
+    let cookieObjects = {};
+    cookieStr.split(';').forEach(item => {
+      if (!item) {
+        return;
+      }
+      const arr = item.split('=');
+      const key = arr[0].trim();
+      const val = arr.slice(1, arr.length+1).join('=').trim();
+      cookieObjects[key] = val;
+    })
+    delete cookieObjects['BingAI_Rand_IP'];
+
+    cookies = Object.keys(cookieObjects).map(key => key + '=' + cookieObjects[key]).join('; ');
 
     newHeaders.set('Cookie', cookies);
     const oldUA = request.headers.get('user-agent') || '';
